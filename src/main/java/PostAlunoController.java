@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,7 +10,19 @@ import java.net.URL;
 public class PostAlunoController {
     public static void main(String[] args) {
         final String url = "https://httpbin.org/post";
-        final String jsonInputString = "{\"id\": 1, \"nome\": \"João\", \"nota\": 70}";
+
+        // aluno
+        Aluno aluno = new Aluno(1, "João", 70);
+
+        // converter do alun para JSON usando Jackson
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInputString;
+        try {
+            jsonInputString = mapper.writeValueAsString(aluno);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         try {
             URL urlObj = new URL(url);
@@ -18,17 +32,17 @@ public class PostAlunoController {
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
 
-            // Envio dos dados
+            // envio dos dados
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
 
-            // Código de resposta
+            // codigo de resposta
             int responseCode = connection.getResponseCode();
             System.out.println("Código de Resposta: " + responseCode);
 
-            // Leitura da resposta
+            // resposta
             try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
                 StringBuilder response = new StringBuilder();
                 String line;
